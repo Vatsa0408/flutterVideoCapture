@@ -1,5 +1,7 @@
 # video_recorder
 
+Documentation:- https://www.woolha.com/tutorials/flutter-video-capture-example
+
 A new Flutter project.
 
 ## Getting Started
