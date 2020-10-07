@@ -49,7 +49,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Camera example'),
+        title: const Text('Video Recorder'),
       ),
       body: Column(
         children: <Widget>[
@@ -134,11 +134,18 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     return Expanded(
       child: Align(
         alignment: Alignment.centerLeft,
-        child: FlatButton.icon(
+        child: Container(
+          width: 125.0,
+          height: 75.0,
+          child: RaisedButton.icon(
             onPressed: _onSwitchCamera,
             icon: Icon(_getCameraLensIcon(lensDirection)),
             label: Text(
-                "${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}")),
+              "${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}",
+            ),
+            color: Colors.indigoAccent,
+          ),
+        ),
       ),
     );
   }
@@ -152,23 +159,33 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.videocam),
-              color: Colors.blue,
-              onPressed: controller != null &&
-                      controller.value.isInitialized &&
-                      !controller.value.isRecordingVideo
-                  ? _onRecordButtonPressed
-                  : null,
+            Container(
+              width: 125.0,
+              height: 75.0,
+              child: RaisedButton.icon(
+                onPressed: controller != null &&
+                        controller.value.isInitialized &&
+                        !controller.value.isRecordingVideo
+                    ? _onRecordButtonPressed
+                    : null,
+                icon: const Icon(Icons.videocam),
+                color: Colors.blueAccent,
+                label: Text("Record"),
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.stop),
-              color: Colors.red,
-              onPressed: controller != null &&
-                      controller.value.isInitialized &&
-                      controller.value.isRecordingVideo
-                  ? _onStopButtonPressed
-                  : null,
+            Container(
+              width: 125.0,
+              height: 75.0,
+              child: RaisedButton.icon(
+                icon: const Icon(Icons.stop),
+                color: Colors.redAccent,
+                onPressed: controller != null &&
+                        controller.value.isInitialized &&
+                        controller.value.isRecordingVideo
+                    ? _onStopButtonPressed
+                    : null,
+                label: Text("Stop"),
+              ),
             )
           ],
         ),
@@ -196,7 +213,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
             msg: 'Camera error ${controller.value.errorDescription}',
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
+            timeInSecForIosWeb: 3,
             backgroundColor: Colors.red,
             textColor: Colors.white);
       }
@@ -232,7 +249,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
             msg: 'Recording video started',
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
+            timeInSecForIosWeb: 3,
             backgroundColor: Colors.grey,
             textColor: Colors.white);
       }
@@ -246,7 +263,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           msg: 'Video recorded to $videoPath',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 3,
           backgroundColor: Colors.grey,
           textColor: Colors.white);
     });
@@ -258,7 +275,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           msg: 'Please wait',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 3,
           backgroundColor: Colors.grey,
           textColor: Colors.white);
 
@@ -308,7 +325,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         msg: 'Error: ${e.code}\n${e.description}',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
+        timeInSecForIosWeb: 3,
         backgroundColor: Colors.red,
         textColor: Colors.white);
   }
