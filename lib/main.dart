@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:location/location.dart';
+import 'package:intl/intl.dart';
 
 class VideoRecorderExample extends StatefulWidget {
   @override
@@ -79,9 +81,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
               children: <Widget>[
                 _cameraTogglesRowWidget(),
                 _captureControlRowWidget(),
-                Expanded(
-                  child: SizedBox(),
-                ),
               ],
             ),
           ),
@@ -246,7 +245,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     _startVideoRecording().then((String filePath) {
       if (filePath != null) {
         Fluttertoast.showToast(
-            msg: 'Recording video started',
+            msg: 'Recording video started. GPS coordinates stored',
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 3,
@@ -260,7 +259,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     _stopVideoRecording().then((_) {
       if (mounted) setState(() {});
       Fluttertoast.showToast(
-          msg: 'Video recorded to $videoPath',
+          msg: 'Video recorded to $videoPath. GPS coordinates stored',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 3,
@@ -281,6 +280,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
 
       return null;
     }
+    final gpsdata = await Location().getLocation();
+    print(gpsdata.latitude);
+    print(gpsdata.longitude);
 
     // Do nothing if a recording is on progress
     if (controller.value.isRecordingVideo) {
@@ -290,8 +292,8 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     final Directory appDirectory = await getExternalStorageDirectory();
     final String videoDirectory = '${appDirectory.path}/Videos';
     await Directory(videoDirectory).create(recursive: true);
-    final String currentTime = DateTime.now().millisecondsSinceEpoch.toString();
-    final String filePath = '$videoDirectory/${currentTime}.mp4';
+    final String currentTime = DateTime.now().toString();
+    final String filePath = '$videoDirectory/$currentTime.mp4';
 
     try {
       await controller.startVideoRecording(filePath);
@@ -308,6 +310,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     if (!controller.value.isRecordingVideo) {
       return null;
     }
+    final gpsdata = await Location().getLocation();
+    print(gpsdata.latitude);
+    print(gpsdata.longitude);
 
     try {
       await controller.stopVideoRecording();
