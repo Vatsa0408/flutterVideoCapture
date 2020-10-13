@@ -4,10 +4,8 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
-import 'package:intl/intl.dart';
 
 class VideoRecorderExample extends StatefulWidget {
   @override
@@ -53,10 +51,15 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
       appBar: AppBar(
         title: const Text('Video Recorder'),
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
+      body: Card(
+        child: Column(
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          verticalDirection: VerticalDirection.up,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Container(
+              height: 200,
+              width: 200,
               child: Padding(
                 padding: const EdgeInsets.all(1.0),
                 child: Center(
@@ -73,18 +76,16 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              verticalDirection: VerticalDirection.up,
               children: <Widget>[
                 _cameraTogglesRowWidget(),
                 _captureControlRowWidget(),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -130,64 +131,81 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     CameraDescription selectedCamera = cameras[selectedCameraIdx];
     CameraLensDirection lensDirection = selectedCamera.lensDirection;
 
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          width: 125.0,
-          height: 75.0,
-          child: RaisedButton.icon(
-            onPressed: _onSwitchCamera,
-            icon: Icon(_getCameraLensIcon(lensDirection)),
-            label: Text(
-              "${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}",
-            ),
-            color: Colors.indigoAccent,
-          ),
-        ),
-      ),
-    );
+    return Container(
+        // width: 20.0,
+        // height: 20.0,
+        // child: Row(
+        //     crossAxisAlignment: CrossAxisAlignment.end,
+        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //     mainAxisSize: MainAxisSize.max,
+        child: IconButton(
+      iconSize: 50.0,
+      icon: Icon(_getCameraLensIcon(lensDirection)),
+      color: Colors.purple,
+      onPressed: _onSwitchCamera,
+    )
+        // child: RaisedButton.icon(
+        //   onPressed: _onSwitchCamera,
+        //   icon: Icon(_getCameraLensIcon(lensDirection)),
+        //   label: Text(
+        //     "${lensDirection.toString().substring(lensDirection.toString().indexOf('.') + 1)}",
+        //   ),
+        //   color: Colors.indigoAccent,
+        // ),
+        );
   }
 
   /// Display the control bar with buttons to record videos.
   Widget _captureControlRowWidget() {
-    return Expanded(
-      child: Align(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Container(
-              width: 125.0,
-              height: 75.0,
-              child: RaisedButton.icon(
-                onPressed: controller != null &&
-                        controller.value.isInitialized &&
-                        !controller.value.isRecordingVideo
-                    ? _onRecordButtonPressed
-                    : null,
-                icon: const Icon(Icons.videocam),
-                color: Colors.blueAccent,
-                label: Text("Record"),
-              ),
-            ),
-            Container(
-              width: 125.0,
-              height: 75.0,
-              child: RaisedButton.icon(
-                icon: const Icon(Icons.stop),
-                color: Colors.redAccent,
-                onPressed: controller != null &&
-                        controller.value.isInitialized &&
-                        controller.value.isRecordingVideo
-                    ? _onStopButtonPressed
-                    : null,
-                label: Text("Stop"),
-              ),
-            )
-          ],
-        ),
+    return Container(
+      // width: 20.0,
+      // height: 20.0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          IconButton(
+            iconSize: 50.0,
+            icon: const Icon(Icons.videocam),
+            color: Colors.blue,
+            onPressed: controller != null &&
+                    controller.value.isInitialized &&
+                    !controller.value.isRecordingVideo
+                ? _onRecordButtonPressed
+                : null,
+          ),
+          // child: RaisedButton.icon(
+          //   onPressed: controller != null &&
+          //           controller.value.isInitialized &&
+          //           !controller.value.isRecordingVideo
+          //       ? _onRecordButtonPressed
+          //       : null,
+          //   icon: const Icon(Icons.videocam),
+          //   color: Colors.blueAccent,
+          //   label: Text("Record"),
+          // ),
+          IconButton(
+            iconSize: 50.0,
+            icon: const Icon(Icons.stop),
+            color: Colors.red,
+            onPressed: controller != null &&
+                    controller.value.isInitialized &&
+                    controller.value.isRecordingVideo
+                ? _onStopButtonPressed
+                : null,
+          ),
+
+          // child: RaisedButton.icon(
+          //   icon: const Icon(Icons.stop),
+          //   color: Colors.redAccent,
+          //   onPressed: controller != null &&
+          //           controller.value.isInitialized &&
+          //           controller.value.isRecordingVideo
+          //       ? _onStopButtonPressed
+          //       : null,
+          //   label: Text("Stop"),
+          // ),
+        ],
       ),
     );
   }
@@ -243,7 +261,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     _startVideoRecording().then((String filePath) {
       if (filePath != null) {
         Fluttertoast.showToast(
-            msg: 'Recording video started. GPS coordinates stored',
+            msg: 'Recording video started.',
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 3,
@@ -257,7 +275,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     _stopVideoRecording().then((_) {
       if (mounted) setState(() {});
       Fluttertoast.showToast(
-          msg: 'Video recorded to $videoPath. GPS coordinates stored',
+          msg: 'Video recorded to $videoPath.',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 3,
@@ -282,7 +300,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     print(gpsdata.latitude);
     print(gpsdata.longitude);
 
-    timestamp() => DateTime.now();
+    var timestamp = DateTime.now();
     print(timestamp);
 
     // Do nothing if a recording is on progress
@@ -315,7 +333,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     print(gpsdata.latitude);
     print(gpsdata.longitude);
 
-    timestamp() => DateTime.now();
+    var timestamp = DateTime.now();
     print(timestamp);
 
     try {
