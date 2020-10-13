@@ -192,8 +192,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     );
   }
 
-  String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
-
   Future<void> _onCameraSwitched(CameraDescription cameraDescription) async {
     if (controller != null) {
       await controller.dispose();
@@ -284,6 +282,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     print(gpsdata.latitude);
     print(gpsdata.longitude);
 
+    timestamp() => DateTime.now();
+    print(timestamp);
+
     // Do nothing if a recording is on progress
     if (controller.value.isRecordingVideo) {
       return null;
@@ -313,6 +314,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     final gpsdata = await Location().getLocation();
     print(gpsdata.latitude);
     print(gpsdata.longitude);
+
+    timestamp() => DateTime.now();
+    print(timestamp);
 
     try {
       await controller.stopVideoRecording();
