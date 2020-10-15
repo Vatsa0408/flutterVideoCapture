@@ -17,6 +17,8 @@ class VideoRecorderExample extends StatefulWidget {
 class _VideoRecorderExampleState extends State<VideoRecorderExample> {
   CameraController controller;
   String videoPath;
+  String startdatapath;
+  String stopdatapath;
 
   List<CameraDescription> cameras;
   int selectedCameraIdx;
@@ -51,40 +53,42 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
       appBar: AppBar(
         title: const Text('Video Recorder'),
       ),
-      body: Card(
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          verticalDirection: VerticalDirection.up,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Container(
-              height: 200,
-              width: 200,
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: _cameraPreviewWidget(),
-                ),
+      body: Container(
+        padding: EdgeInsets.all(5),
+        height: double.infinity,
+        width: double.infinity,
+        child: Card(
+          elevation: 50,
+          color: Colors.cyan[100],
+          child: Column(
+            children: [
+              Row(
+                verticalDirection: VerticalDirection.up,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //verticalDirection: VerticalDirection.up,
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    height: 400,
+                    width: 400,
+                    child: _cameraPreviewWidget(),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(
+                        color: controller != null &&
+                                controller.value.isRecordingVideo
+                            ? Colors.redAccent
+                            : Colors.yellow[300],
+                        width: 5.0,
+                      ),
+                    ),
+                  ),
+                  _cameraTogglesRowWidget(),
+                  _captureControlRowWidget(),
+                ],
               ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
-                  width: 3.0,
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              verticalDirection: VerticalDirection.up,
-              children: <Widget>[
-                _cameraTogglesRowWidget(),
-                _captureControlRowWidget(),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -141,7 +145,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         child: IconButton(
       iconSize: 50.0,
       icon: Icon(_getCameraLensIcon(lensDirection)),
-      color: Colors.purple,
+      color: Colors.black,
       onPressed: _onSwitchCamera,
     )
         // child: RaisedButton.icon(
@@ -258,7 +262,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
   }
 
   void _onRecordButtonPressed() {
-    _startVideoRecording().then((String filePath) {
+    _startVideoRecording().then((String filePath) async {
       if (filePath != null) {
         Fluttertoast.showToast(
             msg: 'Recording video started.',
@@ -268,11 +272,31 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
             backgroundColor: Colors.grey,
             textColor: Colors.white);
       }
+      final startgpsdata = await Location().getLocation();
+      print(startgpsdata.latitude);
+      print(startgpsdata.longitude);
+      var starttimestamp = DateTime.now();
+      print(starttimestamp);
+
+      final startcontents = [
+        startgpsdata.latitude,
+        startgpsdata.longitude,
+        starttimestamp,
+      ];
+
+      final startdirectory = await getApplicationDocumentsDirectory();
+      // For your reference print the AppDoc directory
+      //print(startdirectory.path);
+      final String startTextDirectory = '${startdirectory.path}/StartTextFiles';
+      await Directory(startTextDirectory).create(recursive: true);
+      final String startTextfilePath =
+          '$startTextDirectory/$starttimestamp.txt';
+      print(startTextfilePath);
     });
   }
 
   void _onStopButtonPressed() {
-    _stopVideoRecording().then((_) {
+    _stopVideoRecording().then((_) async {
       if (mounted) setState(() {});
       Fluttertoast.showToast(
           msg: 'Video recorded to $videoPath.',
@@ -281,6 +305,25 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           timeInSecForIosWeb: 3,
           backgroundColor: Colors.grey,
           textColor: Colors.white);
+      final stopgpsdata = await Location().getLocation();
+      print(stopgpsdata.latitude);
+      print(stopgpsdata.longitude);
+
+      var stoptimestamp = DateTime.now();
+      print(stoptimestamp);
+
+      final stopcontents = [
+        stopgpsdata.latitude,
+        stopgpsdata.longitude,
+        stoptimestamp,
+      ];
+      final stopdirectory = await getApplicationDocumentsDirectory();
+      // For your reference print the AppDoc directory
+      // print(stopdirectory.path);
+      final String stopTextDirectory = '${stopdirectory.path}/StopTextFiles';
+      await Directory(stopTextDirectory).create(recursive: true);
+      final String stopTextfilePath = '$stopTextDirectory/$stoptimestamp.txt';
+      print(stopTextfilePath);
     });
   }
 
@@ -296,12 +339,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
 
       return null;
     }
-    final gpsdata = await Location().getLocation();
-    print(gpsdata.latitude);
-    print(gpsdata.longitude);
-
-    var timestamp = DateTime.now();
-    print(timestamp);
 
     // Do nothing if a recording is on progress
     if (controller.value.isRecordingVideo) {
