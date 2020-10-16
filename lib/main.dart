@@ -282,16 +282,19 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         startgpsdata.latitude,
         startgpsdata.longitude,
         starttimestamp,
-      ];
+      ].toString();
 
       final startdirectory = await getApplicationDocumentsDirectory();
       // For your reference print the AppDoc directory
       //print(startdirectory.path);
       final String startTextDirectory = '${startdirectory.path}/StartTextFiles';
       await Directory(startTextDirectory).create(recursive: true);
-      final String startTextfilePath =
-          '$startTextDirectory/$starttimestamp.txt';
+      final Future<File> startTextfilePath =
+          new File('$startTextDirectory/$starttimestamp.txt')
+              .writeAsString('$startcontents');
       print(startTextfilePath);
+
+      return File(startTextDirectory);
     });
   }
 
