@@ -284,14 +284,16 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         starttimestamp,
       ].toString();
 
-      final startdirectory = await getApplicationDocumentsDirectory();
+      final startdirectory = await getExternalStorageDirectory();
       // For your reference print the AppDoc directory
       //print(startdirectory.path);
       final String startTextDirectory = '${startdirectory.path}/StartTextFiles';
       await Directory(startTextDirectory).create(recursive: true);
-      final Future<File> startTextfilePath =
-          new File('$startTextDirectory/$starttimestamp.txt')
-              .writeAsString('$startcontents');
+      final File startTextfilePath =
+          new File('$startTextDirectory/$starttimestamp.txt');
+      await startTextfilePath.writeAsString('$startcontents');
+      print('file saved. Check');
+      print(startTextDirectory);
       print(startTextfilePath);
 
       return File(startTextDirectory);
@@ -320,13 +322,17 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         stopgpsdata.longitude,
         stoptimestamp,
       ];
-      final stopdirectory = await getApplicationDocumentsDirectory();
-      // For your reference print the AppDoc directory
-      // print(stopdirectory.path);
+      final stopdirectory = await getExternalStorageDirectory();
       final String stopTextDirectory = '${stopdirectory.path}/StopTextFiles';
       await Directory(stopTextDirectory).create(recursive: true);
-      final String stopTextfilePath = '$stopTextDirectory/$stoptimestamp.txt';
+      final File stopTextfilePath =
+          new File('$stopTextDirectory/$stoptimestamp.txt');
+      await stopTextfilePath.writeAsString('$stopcontents');
+      print('file saved. Check');
+      print(stopTextDirectory);
       print(stopTextfilePath);
+
+      return File(stopTextDirectory);
     });
   }
 
