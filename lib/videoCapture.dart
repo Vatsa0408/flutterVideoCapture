@@ -24,18 +24,10 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
   double stopLong;
   DateTime startTime;
   DateTime stopTime;
+  double startGPSTimestamp;
+  double stopGPSTimestamp;
 
-  final List<InfoVideo> information = [
-    InfoVideo(
-      videoFilePath: videoPath,
-      startGPSLat: ,
-      startGPSLong: 'startLong' as double,
-      startTimeStamp: 'startTime' as DateTime,
-      stopGPSLat: 'stopLat' as double,
-      stopGPSLong: 'stopLong' as double,
-      stopTimeStamp: 'stopTime' as DateTime,
-    )
-  ];
+  final List<InfoVideo> information = [InfoVideo()];
 
   List<CameraDescription> cameras;
   int selectedCameraIdx;
@@ -105,28 +97,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
                 ],
               ),
             ),
-            Card(
-              elevation: 50,
-              color: Colors.blueGrey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: information.map((data) {
-                    return Card(
-                        child: Column(
-                      children: <Widget>[
-                        Text(data.videoFilePath),
-                        // Text(
-                        //   data.startGPSLat.toString(),
-                        // ),
-                        // Text(
-                        //   data.startGPSLong.toString(),
-                        // ),
-                      ],
-                    ));
-                  }).toList(),
-                ),
-              ),
-            ),
+            Card(),
           ],
         ),
       ),
@@ -201,8 +172,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
   /// Display the control bar with buttons to record videos.
   Widget _captureControlRowWidget() {
     return Container(
-      // width: 20.0,
-      // height: 20.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.max,
@@ -217,16 +186,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
                 ? _onRecordButtonPressed
                 : null,
           ),
-          // child: RaisedButton.icon(
-          //   onPressed: controller != null &&
-          //           controller.value.isInitialized &&
-          //           !controller.value.isRecordingVideo
-          //       ? _onRecordButtonPressed
-          //       : null,
-          //   icon: const Icon(Icons.videocam),
-          //   color: Colors.blueAccent,
-          //   label: Text("Record"),
-          // ),
           IconButton(
             iconSize: 80.0,
             icon: const Icon(Icons.stop),
@@ -237,17 +196,6 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
                 ? _onStopButtonPressed
                 : null,
           ),
-
-          // child: RaisedButton.icon(
-          //   icon: const Icon(Icons.stop),
-          //   color: Colors.redAccent,
-          //   onPressed: controller != null &&
-          //           controller.value.isInitialized &&
-          //           controller.value.isRecordingVideo
-          //       ? _onStopButtonPressed
-          //       : null,
-          //   label: Text("Stop"),
-          // ),
         ],
       ),
     );
@@ -322,16 +270,18 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           startgpsdata.latitude,
           startgpsdata.longitude,
           starttimestamp,
+          startgpsdata.time,
         ].toString();
 
         startLat = startgpsdata.latitude;
         startLong = startgpsdata.longitude;
         startTime = starttimestamp;
+        startGPSTimestamp = startgpsdata.time;
 
         final startdirectory = await getExternalStorageDirectory();
         // For your reference print the AppDoc directory
         //print(startdirectory.path);
-        String startTextDirectory = '${startdirectory.path}/StartTextFiles';
+        String startTextDirectory = '${startdirectory.path}/Videos';
         await Directory(startTextDirectory).create(recursive: true);
         File startTextfilePath =
             new File('$startTextDirectory/$starttimestamp.txt');
@@ -358,23 +308,21 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           backgroundColor: Colors.black,
           textColor: Colors.white);
       final stopgpsdata = await Location().getLocation();
-      // print(stopgpsdata.latitude);
-      // print(stopgpsdata.longitude);
-
       var stoptimestamp = DateTime.now();
-      // print(stoptimestamp);
 
       final stopcontents = [
         stopgpsdata.latitude,
         stopgpsdata.longitude,
         stoptimestamp,
+        stopgpsdata.time,
       ];
       stopLat = stopgpsdata.latitude;
       stopLong = stopgpsdata.longitude;
       stopTime = stoptimestamp;
+      stopGPSTimestamp = stopgpsdata.time;
 
       final stopdirectory = await getExternalStorageDirectory();
-      final String stopTextDirectory = '${stopdirectory.path}/StopTextFiles';
+      final String stopTextDirectory = '${stopdirectory.path}/Videos';
       await Directory(stopTextDirectory).create(recursive: true);
       final File stopTextfilePath =
           new File('$stopTextDirectory/$stoptimestamp.txt');
