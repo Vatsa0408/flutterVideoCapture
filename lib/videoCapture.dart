@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
-import './information_class.dart';
+import 'package:video_recorder/models/information_class.dart';
 
 class VideoRecorderExample extends StatefulWidget {
   @override
@@ -15,19 +15,12 @@ class VideoRecorderExample extends StatefulWidget {
   }
 }
 
+String videoPath;
+String id;
+
 class _VideoRecorderExampleState extends State<VideoRecorderExample> {
   CameraController controller;
-  String videoPath;
-  double startLat;
-  double startLong;
-  double stopLat;
-  double stopLong;
-  DateTime startTime;
-  DateTime stopTime;
-  double startGPSTimestamp;
-  double stopGPSTimestamp;
-
-  final List<InfoVideo> information = [InfoVideo()];
+  final List<InfoVideo> _infoList = [];
 
   List<CameraDescription> cameras;
   int selectedCameraIdx;
@@ -66,38 +59,53 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         height: double.infinity,
         width: double.infinity,
         color: Colors.tealAccent,
-        child: Column(
-          children: <Widget>[
-            Card(
-              elevation: 10,
-              color: Colors.amber,
-              child: Row(
-                verticalDirection: VerticalDirection.up,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //verticalDirection: VerticalDirection.up,
-                //crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    height: 300,
-                    width: 300,
-                    child: _cameraPreviewWidget(),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(
-                        color: controller != null &&
-                                controller.value.isRecordingVideo
-                            ? Colors.redAccent
-                            : Colors.yellow[300],
-                        width: 5.0,
-                      ),
+        child: ListView(
+          children: [
+            Column(
+              children: <Widget>[
+                SizedBox(
+                  height: 600,
+                  width: double.infinity,
+                  child: Card(
+                    elevation: 10,
+                    color: Colors.amber,
+                    child: Row(
+                      verticalDirection: VerticalDirection.up,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //verticalDirection: VerticalDirection.up,
+                      //crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 300,
+                          width: 300,
+                          child: _cameraPreviewWidget(),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            border: Border.all(
+                              color: controller != null &&
+                                      controller.value.isRecordingVideo
+                                  ? Colors.redAccent
+                                  : Colors.yellow[300],
+                              width: 5.0,
+                            ),
+                          ),
+                        ),
+                        _cameraTogglesRowWidget(),
+                        _captureControlRowWidget(),
+                      ],
                     ),
                   ),
-                  _cameraTogglesRowWidget(),
-                  _captureControlRowWidget(),
-                ],
-              ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                    color: Colors.deepOrange,
+                    width: 2,
+                  )),
+                  child: _dataList(),
+                ),
+              ],
             ),
-            Card(),
           ],
         ),
       ),
@@ -153,7 +161,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         //     mainAxisSize: MainAxisSize.max,
         child: IconButton(
-      iconSize: 80.0,
+      iconSize: 60.0,
       icon: Icon(_getCameraLensIcon(_lensDirection)),
       color: Colors.black,
       onPressed: _onSwitchCamera,
@@ -177,7 +185,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           IconButton(
-            iconSize: 80.0,
+            iconSize: 60.0,
             icon: const Icon(Icons.videocam),
             color: Colors.blue,
             onPressed: controller != null &&
@@ -187,7 +195,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
                 : null,
           ),
           IconButton(
-            iconSize: 80.0,
+            iconSize: 60.0,
             icon: const Icon(Icons.stop),
             color: Colors.red,
             onPressed: controller != null &&
@@ -199,6 +207,75 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         ],
       ),
     );
+  }
+
+  Widget _dataList() {
+    return Container(
+      child: Column(
+        children: _infoList.map((data) {
+          return Card(
+            child: Column(
+              children: [
+                Text(
+                  data.videoFilePath,
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  data.id,
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      color: Colors.red,
+                      iconSize: 30,
+                      onPressed: () => _deleteVideo,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.open_with),
+                      iconSize: 30,
+                      color: Colors.purple,
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.play_circle_filled),
+                      iconSize: 30,
+                      color: Colors.green,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _addInfoList(String videoPath, String id) {
+    final newInfo = InfoVideo(
+      videoFilePath: '$videoPath',
+      id: DateTime.now().toString(),
+    );
+
+    setState(() {
+      _infoList.add(newInfo);
+    });
+  }
+
+  void _deleteVideo(String id) {
+    setState(() {
+      _infoList.removeWhere((del) {
+        return del.id == id;
+      });
+    });
   }
 
   Future<void> _onCameraSwitched(CameraDescription cameraDescription) async {
@@ -263,8 +340,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         final startgpsdata = await Location().getLocation();
         // print(startgpsdata.latitude);
         // print(startgpsdata.longitude);
-        var starttimestamp = DateTime.now();
+        final starttimestamp = DateTime.now();
         //print(starttimestamp);
+        print('$videoPath');
 
         final startcontents = [
           startgpsdata.latitude,
@@ -273,15 +351,10 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           startgpsdata.time,
         ].toString();
 
-        startLat = startgpsdata.latitude;
-        startLong = startgpsdata.longitude;
-        startTime = starttimestamp;
-        startGPSTimestamp = startgpsdata.time;
-
         final startdirectory = await getExternalStorageDirectory();
         // For your reference print the AppDoc directory
         //print(startdirectory.path);
-        String startTextDirectory = '${startdirectory.path}/Videos';
+        String startTextDirectory = '${startdirectory.path}/Video And Data';
         await Directory(startTextDirectory).create(recursive: true);
         File startTextfilePath =
             new File('$startTextDirectory/$starttimestamp.txt');
@@ -308,7 +381,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
           backgroundColor: Colors.black,
           textColor: Colors.white);
       final stopgpsdata = await Location().getLocation();
-      var stoptimestamp = DateTime.now();
+      final stoptimestamp = DateTime.now();
 
       final stopcontents = [
         stopgpsdata.latitude,
@@ -316,19 +389,15 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         stoptimestamp,
         stopgpsdata.time,
       ];
-      stopLat = stopgpsdata.latitude;
-      stopLong = stopgpsdata.longitude;
-      stopTime = stoptimestamp;
-      stopGPSTimestamp = stopgpsdata.time;
 
       final stopdirectory = await getExternalStorageDirectory();
-      final String stopTextDirectory = '${stopdirectory.path}/Videos';
+      final String stopTextDirectory = '${stopdirectory.path}/Video And Data';
+      //stopTextDirectory = dataDir;
       await Directory(stopTextDirectory).create(recursive: true);
       final File stopTextfilePath =
           new File('$stopTextDirectory/$stoptimestamp.txt');
       await stopTextfilePath.writeAsString('$stopcontents');
-      // print(stopTextDirectory);
-      // print(stopTextfilePath);
+      _addInfoList(videoPath, id);
       return File(stopTextDirectory);
     });
   }
@@ -352,7 +421,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     }
 
     final Directory appDirectory = await getExternalStorageDirectory();
-    final String videoDirectory = '${appDirectory.path}/Videos';
+    final String videoDirectory = '${appDirectory.path}/Video And Data';
     await Directory(videoDirectory).create(recursive: true);
     final String currentTime = DateTime.now().toString();
     final String filePath = '$videoDirectory/$currentTime.mp4';
@@ -371,6 +440,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     if (!controller.value.isRecordingVideo) {
       return null;
     }
+
     try {
       await controller.stopVideoRecording();
     } on CameraException catch (e) {

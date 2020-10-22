@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import './videoCapture.dart';
+import 'videoCapture.dart';
 
 class VideoRecorderApp extends StatelessWidget {
   @override
