@@ -59,52 +59,51 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         height: double.infinity,
         width: double.infinity,
         color: Colors.tealAccent,
-        child: ListView(
-          children: [
-            Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 600,
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 10,
-                    color: Colors.amber,
-                    child: Row(
-                      verticalDirection: VerticalDirection.up,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      //verticalDirection: VerticalDirection.up,
-                      //crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          height: 300,
-                          width: 300,
-                          child: _cameraPreviewWidget(),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            border: Border.all(
-                              color: controller != null &&
-                                      controller.value.isRecordingVideo
-                                  ? Colors.redAccent
-                                  : Colors.yellow[300],
-                              width: 5.0,
-                            ),
-                          ),
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 500,
+              width: double.infinity,
+              child: Card(
+                elevation: 10,
+                color: Colors.amber,
+                child: Row(
+                  verticalDirection: VerticalDirection.up,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  //verticalDirection: VerticalDirection.up,
+                  //crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: 300,
+                      width: 300,
+                      child: _cameraPreviewWidget(),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(
+                          color: controller != null &&
+                                  controller.value.isRecordingVideo
+                              ? Colors.redAccent
+                              : Colors.yellow[300],
+                          width: 5.0,
                         ),
-                        _cameraTogglesRowWidget(),
-                        _captureControlRowWidget(),
-                      ],
+                      ),
                     ),
-                  ),
+                    _cameraTogglesRowWidget(),
+                    _captureControlRowWidget(),
+                  ],
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                    color: Colors.deepOrange,
-                    width: 2,
-                  )),
-                  child: _dataList(),
+              ),
+            ),
+            Container(
+              // height: 400,
+              //color: Colors.deepOrange,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.deepOrange,
+                  width: 5,
                 ),
-              ],
+              ),
+              child: _dataList(),
             ),
           ],
         ),
@@ -211,50 +210,50 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
 
   Widget _dataList() {
     return Container(
-      child: Column(
-        children: _infoList.map((data) {
-          return Card(
-            child: Column(
-              children: [
-                Text(
-                  data.videoFilePath,
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  data.id,
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      height: 630,
+      child: ListView.builder(
+        itemBuilder: (ctx, index) {
+          return Column(
+            children: [
+              Card(
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      color: Colors.red,
-                      iconSize: 30,
-                      onPressed: () => _deleteVideo,
+                    Text(
+                      _infoList[index].videoFilePath,
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.open_with),
-                      iconSize: 30,
-                      color: Colors.purple,
-                      onPressed: () {},
+                    Text(
+                      _infoList[index].id,
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.play_circle_filled),
-                      iconSize: 30,
-                      color: Colors.green,
-                      onPressed: () {},
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          color: Colors.red,
+                          iconSize: 30,
+                          onPressed: () => _deleteVideo,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.open_with),
+                          iconSize: 30,
+                          color: Colors.purple,
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
-        }).toList(),
+        },
+        itemCount: _infoList.length,
       ),
     );
   }
@@ -270,11 +269,17 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     });
   }
 
-  void _deleteVideo(String id) {
+  void _deleteVideo() {
     setState(() {
-      _infoList.removeWhere((del) {
-        return del.id == id;
-      });
+      final dir = Directory(videoPath);
+      dir.deleteSync(recursive: true);
+      Fluttertoast.showToast(
+          msg: 'Deleted',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
     });
   }
 
@@ -283,7 +288,7 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
       await controller.dispose();
     }
 
-    controller = CameraController(cameraDescription, ResolutionPreset.high);
+    controller = CameraController(cameraDescription, ResolutionPreset.max);
 
     // If the controller is updated then update the UI.
     controller.addListener(() {
@@ -294,9 +299,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
       if (controller.value.hasError) {
         Fluttertoast.showToast(
             msg: 'Camera error ${controller.value.errorDescription}',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 2,
             backgroundColor: Colors.red,
             textColor: Colors.white);
       }
@@ -323,9 +328,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     _onCameraSwitched(selectedCamera);
     Fluttertoast.showToast(
         msg: '$view triggered',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 5,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
         backgroundColor: Colors.black,
         textColor: Colors.white);
 
@@ -361,9 +366,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
         await startTextfilePath.writeAsString('$startcontents');
         Fluttertoast.showToast(
             msg: 'GPS and Timestamp are recorded. Video Recording started',
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 5,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 2,
             backgroundColor: Colors.black,
             textColor: Colors.white);
       }
@@ -375,9 +380,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
       if (mounted) setState(() {});
       Fluttertoast.showToast(
           msg: 'Video, GPS and Timestamp are recorded.',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 5,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 2,
           backgroundColor: Colors.black,
           textColor: Colors.white);
       final stopgpsdata = await Location().getLocation();
@@ -406,9 +411,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
     if (!controller.value.isInitialized) {
       Fluttertoast.showToast(
           msg: 'Please wait',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 5,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 2,
           backgroundColor: Colors.black,
           textColor: Colors.white);
 
@@ -455,9 +460,9 @@ class _VideoRecorderExampleState extends State<VideoRecorderExample> {
 
     Fluttertoast.showToast(
         msg: 'Error: ${e.code}\n${e.description}',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 5,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
         backgroundColor: Colors.red,
         textColor: Colors.white);
   }
